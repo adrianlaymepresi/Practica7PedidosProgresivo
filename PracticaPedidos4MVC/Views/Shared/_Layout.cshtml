@@ -1,0 +1,100 @@
+﻿@* Views/Shared/_Layout.cshtml *@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PracticaPedidos4MVC</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/PracticaPedidos4MVC.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="top-header">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <a class="navbar-brand titulo-app m-0 text-black" asp-controller="Home" asp-action="Index">PEDIDOS</a>
+
+            <div class="d-flex align-items-center gap-3">
+                @{
+                    var userName = Context.Session.GetString("Auth:UserName");
+                    var userRole = (Context.Session.GetString("Auth:UserRole") ?? "").ToLowerInvariant();
+                }
+                @if (!string.IsNullOrEmpty(userName))
+                {
+                    <span class="text-dark small">Hola, <strong>@userName</strong> (@userRole)</span>
+
+                    <form id="logoutForm" asp-controller="Home" asp-action="Logout" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                onclick="if(confirm('¿Seguro que deseas cerrar sesión?')) this.form.submit();">
+                            ⎋ Logout
+                        </button>
+                    </form>
+                }
+            </div>
+
+            <button id="toggleSidebar" class="btn btn-sm btn-toggle">☰ MENU</button>
+        </div>
+    </header>
+
+    <div class="wrapper d-flex">
+        <nav id="sidebar" class="sidebar">
+            @{
+                var role = (Context.Session.GetString("Auth:UserRole") ?? "").ToLowerInvariant();
+            }
+            <ul class="nav flex-column">
+                @if (role == "admin")
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-white" asp-controller="Users" asp-action="Index">👤 Users</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" asp-controller="Products" asp-action="Index">🧺 Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" asp-controller="Orders" asp-action="Index">📝 Orders</a>
+                    </li>
+                }
+                else if (role == "empleado")
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-white" asp-controller="Products" asp-action="Index">🧺 Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" asp-controller="Orders" asp-action="Index">📝 Orders</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-white" asp-controller="Catalog" asp-action="Index">📚 Catálogo</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+
+        <div id="content" class="content flex-grow-1">
+            <main role="main" class="py-3">
+                @RenderBody()
+            </main>
+
+            <footer class="footer-app text-center">
+                <div class="container">
+                    By: Ignacio Adrian Layme Delgado · 2025 ·
+                    <a class="link-contraste" asp-controller="Home" asp-action="Privacy">Privacidad</a>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const boton = document.getElementById('toggleSidebar');
+        if (boton) {
+            boton.onclick = () => document.body.classList.toggle('sidebar-cerrado');
+        }
+    </script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
